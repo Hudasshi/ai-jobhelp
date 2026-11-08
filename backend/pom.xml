@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- Maven模型版本，固定为4.0.0 -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- SpringBoot父工程，统一管理所有依赖版本，子依赖无需指定version -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.9</version>
+        <relativePath/>
+    </parent>
+
+    <!-- 项目GAV坐标：groupId + artifactId + version -->
+    <groupId>com.qznu</groupId>
+    <artifactId>jobhelper</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>jobhelper</name>
+    <description>AI Job Helper backend</description>
+
+    <properties>
+        <!-- 项目声明JDK版本为21 -->
+        <java.version>21</java.version>
+        <!-- Maven编译版本，这里设置为17，代码兼容JDK17及以上，可按需改成21 -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <!-- 全局编码UTF-8，防止中文乱码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- 自定义依赖版本变量，统一管理，方便后续升级 -->
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <mysql.connector.version>8.0.33</mysql.connector.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <langchain4j.version>1.23.0</langchain4j.version>
+        <pdfbox.version>3.0.7</pdfbox.version>
+        <poi.version>5.5.1</poi.version>
+        <spring-security-crypto.version>6.4.5</spring-security-crypto.version>
+    </properties>
+
+    <dependencies>
+        <!-- SpringBoot Web启动器：提供Tomcat、Web接口、JSON序列化等web基础能力 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 参数校验启动器：@Valid、@NotBlank、@NotNull等校验注解 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!--
+            只引入密码加密工具，不引入完整 Spring Security Starter。
+            BCryptPasswordEncoder 位于 spring-security-crypto 中；引入完整 Starter
+            会自动装配 Security 过滤器链，反而需要再配置放行规则。
+        -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>${spring-security-crypto.version}</version>
+        </dependency>
+
+        <!-- MyBatis-Plus SpringBoot3专属starter，简化MyBatis CRUD开发 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- MySQL8驱动，runtime范围：编译时不需要，运行时才加载 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql.connector.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Redis启动器，用于缓存、验证码、分布式会话等 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- JJWT JWT工具包，用于生成、解析登录token（三个包配套使用） -->
+        <!-- api：开发时调用的接口 -->
+        <!--`${}` 是 **Maven 属性引用**-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <!-- impl：底层实现，仅运行时需要 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- jackson序列化支持，仅运行时需要 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- LangChain4j 大模型开发框架核心包，用来做AI问答、RAG等功能 -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+        <!-- LangChain4j OpenAI对接包，对接GPT系列模型 -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+
+        <!-- PDFBox：PDF文档解析，用于简历PDF文本提取 -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>${pdfbox.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- POI-OOXML：解析、生成docx、xlsx等Office文档，解析Word简历 -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+        <!-- 单元测试包，scope=test 只在测试阶段生效，打包不会打入jar -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- SpringBoot打包插件：把项目打包成可直接java -jar运行的可执行jar包 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

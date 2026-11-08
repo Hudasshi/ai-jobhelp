@@ -1,0 +1,71 @@
+# 服务配置
+server:
+  # 项目启动端口
+  port: 8080
+
+# Spring相关配置
+spring:
+  application:
+    # 应用名称，服务标识
+    name: jobhelper
+
+  # 全局 JSON 规则：时间统一使用中国时区，拒绝 DTO 未声明的字段。
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    deserialization:
+      # 例如注册时偷偷提交 role/status，会直接按参数错误拒绝。
+      fail-on-unknown-properties: true
+
+  # 数据源（MySQL）配置
+  datasource:
+    # MySQL8驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库连接地址
+    # ${DB_URL:默认值}：环境变量优先；如果没有DB_URL环境变量，就使用冒号后面的默认连接串
+    url: "${DB_URL:jdbc:mysql://127.0.0.1:3306/ai_jobs?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai}"
+    # 数据库账号，优先读取环境变量DB_USERNAME，取不到则默认root
+    username: "${DB_USERNAME:root}"
+    # 数据库密码，优先读取环境变量DB_PASSWORD，取不到则默认123456
+    password: "${DB_PASSWORD:123456}"
+
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3s
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+
+ai:
+  provider: ${AI_PROVIDER:deepseek}
+  base-url: ${AI_BASE_URL:https://api.deepseek.com}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:deepseek-chat}
+  timeout-ms: ${AI_TIMEOUT_MS:60000}
+  max-input-tokens: ${AI_MAX_INPUT_TOKENS:6000}
+  retry:
+    max: 3
+  # auto：配置了 API Key 就调用真实模型；没有 Key 时自动使用本地演示结果。
+  # always：永远使用本地演示结果，适合课堂演示和离线验收。
+  mock-mode: ${AI_MOCK_MODE:auto}
+
+jwt:
+  # 开发环境提供可运行默认值；部署时必须通过 JWT_SECRET 覆盖。
+  secret: ${JWT_SECRET:0123456789abcdef0123456789abcdef}
+  expire-days: ${JWT_EXPIRE_DAYS:7}
+
+file:
+  # 默认写到后端工作目录下的 uploads/resume，避免首次运行还需要手工建 D 盘目录。
+  upload-dir: "${FILE_UPLOAD_DIR:./uploads/resume}"
+
+mybatis-plus:
+  configuration:
+    # 数据库 snake_case 自动映射到 Java camelCase。
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
